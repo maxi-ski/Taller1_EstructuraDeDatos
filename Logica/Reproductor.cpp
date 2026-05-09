@@ -1,58 +1,73 @@
-//
-// Created by nacho on 5/8/2026.
-//
 #include "Reproductor.h"
-
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
 
 Reproductor::Reproductor(){
-
-    actual = nullptr;
-    reproduciendo = false;
-    random = false;
-    repeticion = 0;
-
+    actual=nullptr;
+    reproduciendo=false;
+    random=false;
+    repeticion=0;
     srand(time(nullptr));
+}
+//estado visual
+string Reproductor::estadoActual(){
+    string estado="";
+
+    if(random){
+        estado+="S";
+    }
+
+    if(repeticion==1){
+        if(estado!=""){
+            estado+="-";
+        }
+        estado+="R1";
+    }
+    else if(repeticion==2){
+        if(estado!=""){
+            estado+="-";
+        }
+        estado+="RA";
+    }
+
+    return estado;
+}
+
+//llenar cola
+void Reproductor::llenarColaAleatoria(){
+    cola=ListaCanciones();
+    Nodo* aux=canciones.getPrimero();
+    while(aux!=nullptr){
+        if(aux->cancion!=actual){
+            cola.agregar(aux->cancion);
+        }
+        aux=aux->siguiente;
+    }
 }
 
 //cargar canciones
 void Reproductor::cargarCanciones(){
-
     ifstream archivo("Estructura/music_source.txt");
-
     if(!archivo.is_open()){
-
-        cout << "No se encontro music_source.txt" << endl;
-
+        cout<<"No se encontro music_source.txt"<<endl;
         return;
     }
-
     string linea;
+    while(getline(archivo,linea)){
 
-    while(getline(archivo, linea)){
-
-        if(linea == ""){
+        if(linea==""){
             continue;
         }
-
         stringstream ss(linea);
-
         string dato;
-
         string datos[7];
-
-        int i = 0;
-
-        while(getline(ss, dato, ',')){
-
-            datos[i] = dato;
-
+        int i=0;
+        while(getline(ss,dato,',')){
+            datos[i]=dato;
             i++;
         }
-
-        Cancion* nueva = new Cancion(
+        Cancion* nueva=new Cancion(
             stoi(datos[0]),
             datos[1],
             datos[2],
@@ -64,178 +79,217 @@ void Reproductor::cargarCanciones(){
 
         canciones.agregar(nueva);
     }
-
     archivo.close();
-
-    if(canciones.getLargo() > 0){
-
-        actual = canciones.obtenerPorPos(1);
+    if(canciones.getLargo()>0){
+        actual=canciones.obtenerPorPos(1);
+        llenarColaAleatoria();
     }
 }
 
 //mostrar menu
 void Reproductor::mostrarMenu(){
-
     system("cls");
-
-    cout << "==========================" << endl;
-    cout << "      REPRODUCTOR" << endl;
-    cout << "==========================" << endl;
-    cout << endl;
-
-    if(actual != nullptr){
-
-        if(reproduciendo){
-            cout << "Reproduciendo: ";
+    cout<<"=========================="<<endl;
+    cout<<"      REPRODUCTOR"<<endl;
+    cout<<"=========================="<<endl;
+    cout<<endl;
+    if(actual!=nullptr){
+        cout<<"Actual ";
+        string estado=estadoActual();
+        if(estado!=""){
+            cout<<"("<<estado<<")";
         }
-        else{
-            cout << "En pausa: ";
-        }
-
-        cout << actual->getNombre() << endl;
-
-        cout << "Artista: " << actual->getArtista() << endl;
-
-        cout << "Album: "
-             << actual->getAlbum()
-             << " ["
-             << actual->getAnio()
-             << "]"
-             << endl;
+        cout<<": ";
+        cout
+            <<actual->getNombre()
+            <<" - "
+            <<actual->getArtista()
+            <<endl;
     }
     else{
-
-        cout << "Reproduccion detenida" << endl;
+        cout<<"Sin canciones"<<endl;
     }
 
-    cout << endl;
-
-    cout << "W - Reproducir/Pausar" << endl;
-    cout << "Q - Pista anterior" << endl;
-    cout << "E - Pista siguiente" << endl;
-    cout << "S - Random" << endl;
-    cout << "R - Repeticion" << endl;
-    cout << "L - Listado canciones" << endl;
-    cout << "X - Salir" << endl;
-
-    cout << endl;
-
-    cout << "Ingrese opcion: ";
+    cout<<endl;
+    cout<<"W - Reproducir/Pausar"<<endl;
+    cout<<"Q - Pista anterior"<<endl;
+    cout<<"E - Pista siguiente"<<endl;
+    cout<<"S - Random"<<endl;
+    cout<<"R - Repeticion"<<endl;
+    cout<<"A - Ver lista reproduccion"<<endl;
+    cout<<"L - Listado canciones"<<endl;
+    cout<<"X - Salir"<<endl;
+    cout<<endl;
+    cout<<"Ingrese opcion: ";
 }
 
 //play pausa
 void Reproductor::reproducirPausa(){
-
-    if(actual == nullptr){
+    if(actual==nullptr){
         return;
     }
-
-    reproduciendo = !reproduciendo;
-
+    reproduciendo=!reproduciendo;
     guardarEstado();
 }
 
 //siguiente
 void Reproductor::siguiente(){
-
-    if(canciones.getLargo() == 0){
+    if(actual==nullptr){
+        return;
+    }
+    if(repeticion==1){
+        guardarEstado();
         return;
     }
 
-    int pos = rand() % canciones.getLargo() + 1;
+    Nodo* primeroCola=cola.getPrimero();
+    if(primeroCola==nullptr){
+        if(repeticion==2){
+            llenarColaAleatoria();
+            primeroCola=cola.getPrimero();
+            if(primeroCola==nullptr){
+                return;
+            }
+        }
+        else{
+            return;
+        }
+    }
 
-    actual = canciones.obtenerPorPos(pos);
-
-    reproduciendo = true;
-
+    actual=primeroCola->cancion;
+    cola.eliminarPorPos(1);
+    reproduciendo=true;
     guardarEstado();
 }
 
 //anterior
 void Reproductor::anterior(){
+    if(canciones.getLargo()==0){
+        return;
+    }
+    int pos=rand()%canciones.getLargo()+1;
+    actual=canciones.obtenerPorPos(pos);
+    reproduciendo=true;
+    guardarEstado();
+}
 
-    if(canciones.getLargo() == 0){
+//ver cola
+void Reproductor::verCola(){
+    if(actual==nullptr){
         return;
     }
 
-    int pos = rand() % canciones.getLargo() + 1;
+    system("cls");
+    cout<<"Actual ";
+    string estado=estadoActual();
+    if(estado!=""){
+        cout<<"("<<estado<<")";
+    }
+    cout<<": ";
+    cout
+        <<actual->getNombre()
+        <<" - "
+        <<actual->getArtista()
+        <<endl;
+    cout<<endl;
+    cout<<"Lista de reproduccion actual:"<<endl;
 
-    actual = canciones.obtenerPorPos(pos);
+    Nodo* aux=cola.getPrimero();
 
-    reproduciendo = true;
+    if(aux==nullptr){
+        cout<<"Vacia"<<endl;
+    }
+    else{
+        int i=1;
+        while(aux!=nullptr){
+            cout
+                <<i
+                <<". "
+                <<aux->cancion->getNombre()
+                <<" - "
+                <<aux->cancion->getArtista()
+                <<endl;
+            aux=aux->siguiente;
+            i++;
+        }
+        cout<<endl;
+        cout<<"S<num> - Saltar"<<endl;
+    }
 
-    guardarEstado();
+    cout<<"V - Volver"<<endl;
+    cout<<endl;
+    string op;
+    cin>>op;
+
+    if(op=="V"||op=="v"){
+        return;
+    }
+
+    if(op[0]=='S'||op[0]=='s'){
+        int num=stoi(op.substr(1));
+        Cancion* c=cola.obtenerPorPos(num);
+        if(c!=nullptr){
+            actual=c;
+            for(int i=0;i<num;i++){
+                cola.eliminarPorPos(1);
+            }
+            reproduciendo=true;
+        }
+        guardarEstado();
+    }
 }
 
 //listar canciones
 void Reproductor::listarCanciones(){
-
     system("cls");
-
-    cout << "==========================" << endl;
-    cout << "   CANCIONES REGISTRADAS" << endl;
-    cout << "==========================" << endl;
-    cout << endl;
-
+    cout<<"Canciones registradas:"<<endl;
+    cout<<endl;
     canciones.mostrar();
+    cout<<endl;
+    cout<<"R<num> - Reproducir"<<endl;
+    cout<<"A<num> - Agregar cola"<<endl;
+    cout<<"N - Nueva cancion"<<endl;
+    cout<<"D<num> - Eliminar"<<endl;
+    cout<<"V - Volver"<<endl;
 
-    cout << endl;
-
-    cout << "R<num> - reproducir" << endl;
-    cout << "A<num> - agregar cola" << endl;
-    cout << "N - nueva cancion" << endl;
-    cout << "D<num> - eliminar" << endl;
-    cout << "V - volver" << endl;
-
-    cout << endl;
-
+    cout<<endl;
     string op;
-
-    cin >> op;
-
-    //volver
-    if(op == "V" || op == "v"){
+    cin>>op;
+    if(op=="V"||op=="v"){
         return;
     }
 
-    //nueva
-    if(op == "N" || op == "n"){
-
+    if(op=="N"||op=="n"){
         agregarCancion();
-
         return;
     }
-
-    //reproducir
-    if(op[0] == 'R' || op[0] == 'r'){
-
-        int num = stoi(op.substr(1));
-
-        Cancion* c = canciones.obtenerPorPos(num);
-
-        if(c != nullptr){
-
-            actual = c;
-
-            reproduciendo = true;
+    if(op[0]=='R'||op[0]=='r'){
+        int num=stoi(op.substr(1));
+        Cancion* c=canciones.obtenerPorPos(num);
+        if(c!=nullptr){
+            actual=c;
+            reproduciendo=true;
+            llenarColaAleatoria();
         }
-
         guardarEstado();
-
         return;
     }
 
-    //eliminar
-    if(op[0] == 'D' || op[0] == 'd'){
-
-        int num = stoi(op.substr(1));
-
-        canciones.eliminarPorPos(num);
-
-        eliminarCancion();
-
+    if(op[0]=='A'||op[0]=='a'){
+        int num=stoi(op.substr(1));
+        Cancion* c=canciones.obtenerPorPos(num);
+        if(c!=nullptr){
+            cola.agregar(c);
+        }
         guardarEstado();
+        return;
+    }
 
+    if(op[0]=='D'||op[0]=='d'){
+        int num=stoi(op.substr(1));
+        canciones.eliminarPorPos(num);
+        eliminarCancion();
+        guardarEstado();
         return;
     }
 }
@@ -253,29 +307,29 @@ void Reproductor::agregarCancion(){
     int anio;
     int duracion;
 
-    cout << "Nombre: ";
-    getline(cin, nombre);
+    cout<<"Nombre: ";
+    getline(cin,nombre);
 
-    cout << "Artista: ";
-    getline(cin, artista);
+    cout<<"Artista: ";
+    getline(cin,artista);
 
-    cout << "Album: ";
-    getline(cin, album);
+    cout<<"Album: ";
+    getline(cin,album);
 
-    cout << "Anio: ";
-    cin >> anio;
+    cout<<"Anio: ";
+    cin>>anio;
 
-    cout << "Duracion: ";
-    cin >> duracion;
+    cout<<"Duracion: ";
+    cin>>duracion;
 
     cin.ignore();
 
-    cout << "Ruta: ";
-    getline(cin, ruta);
+    cout<<"Ruta: ";
+    getline(cin,ruta);
 
-    int id = canciones.getLargo() + 1;
+    int id=canciones.getLargo()+1;
 
-    Cancion* nueva = new Cancion(
+    Cancion* nueva=new Cancion(
         id,
         nombre,
         artista,
@@ -293,14 +347,14 @@ void Reproductor::agregarCancion(){
     );
 
     archivo
-        << id << ","
-        << nombre << ","
-        << artista << ","
-        << album << ","
-        << anio << ","
-        << duracion << ","
-        << ruta
-        << endl;
+        <<id<<","
+        <<nombre<<","
+        <<artista<<","
+        <<album<<","
+        <<anio<<","
+        <<duracion<<","
+        <<ruta
+        <<endl;
 
     archivo.close();
 
@@ -312,23 +366,23 @@ void Reproductor::eliminarCancion(){
 
     ofstream archivo("Estructura/music_source.txt");
 
-    Nodo* aux = canciones.getPrimero();
+    Nodo* aux=canciones.getPrimero();
 
-    while(aux != nullptr){
+    while(aux!=nullptr){
 
-        Cancion* c = aux->cancion;
+        Cancion* c=aux->cancion;
 
         archivo
-            << c->getId() << ","
-            << c->getNombre() << ","
-            << c->getArtista() << ","
-            << c->getAlbum() << ","
-            << c->getAnio() << ","
-            << c->getDuracion() << ","
-            << c->getRuta()
-            << endl;
+            <<c->getId()<<","
+            <<c->getNombre()<<","
+            <<c->getArtista()<<","
+            <<c->getAlbum()<<","
+            <<c->getAnio()<<","
+            <<c->getDuracion()<<","
+            <<c->getRuta()
+            <<endl;
 
-        aux = aux->siguiente;
+        aux=aux->siguiente;
     }
 
     archivo.close();
@@ -339,17 +393,15 @@ void Reproductor::guardarEstado(){
 
     ofstream archivo("Estructura/status.cfg");
 
-    archivo << "reproduciendo=" << reproduciendo << endl;
-    archivo << "random=" << random << endl;
-    archivo << "repeticion=" << repeticion << endl;
+    archivo<<"reproduciendo="<<reproduciendo<<endl;
+    archivo<<"random="<<random<<endl;
+    archivo<<"repeticion="<<repeticion<<endl;
 
-    if(actual != nullptr){
-
-        archivo << "actual=" << actual->getId() << endl;
+    if(actual!=nullptr){
+        archivo<<"actual="<<actual->getId()<<endl;
     }
     else{
-
-        archivo << "actual=0" << endl;
+        archivo<<"actual=0"<<endl;
     }
 
     archivo.close();
@@ -364,36 +416,45 @@ void Reproductor::menu(){
 
         mostrarMenu();
 
-        cin >> op;
+        cin>>op;
 
-        if(op == 'W' || op == 'w'){
-
+        if(op=='W'||op=='w'){
             reproducirPausa();
         }
 
-        else if(op == 'E' || op == 'e'){
-
+        else if(op=='E'||op=='e'){
             siguiente();
         }
-        else if(op == 'Q' || op == 'q'){
+
+        else if(op=='Q'||op=='q'){
             anterior();
         }
-        else if(op == 'L' || op == 'l'){
+
+        else if(op=='L'||op=='l'){
             listarCanciones();
         }
 
-        else if(op == 'S' || op == 's'){
-            random = !random;
+        else if(op=='A'||op=='a'){
+            verCola();
+        }
+
+        else if(op=='S'||op=='s'){
+            random=!random;
             guardarEstado();
         }
-        else if(op == 'R' || op == 'r'){
+
+        else if(op=='R'||op=='r'){
+
             repeticion++;
-            if(repeticion > 2){
-                repeticion = 0;
+
+            if(repeticion>2){
+                repeticion=0;
             }
+
             guardarEstado();
         }
-    }while(op != 'X' && op != 'x');
+
+    }while(op!='X'&&op!='x');
 
     guardarEstado();
 }

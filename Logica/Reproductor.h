@@ -28,6 +28,9 @@ public:
     void agregarCancion();
     void eliminarCancion();
     void guardarEstado();
+    void verCola();
+    void llenarColaAleatoria();
+    string estadoActual();
 };
 
 #endif
