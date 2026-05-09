@@ -1,7 +1,7 @@
 #ifndef LISTACANCIONES_H
 #define LISTACANCIONES_H
 
-#include "Nodo.h"
+#include "nodo.h"
 
 class ListaCanciones{
 private:

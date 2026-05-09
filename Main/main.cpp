@@ -1,4 +1,4 @@
-#include "core/Reproductor.h"
+#include "../Logica/Reproductor.h"
 
 int main(){
 
