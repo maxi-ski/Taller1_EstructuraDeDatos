@@ -7,7 +7,6 @@ using namespace std;
 
 class Cancion{
 private:
-
     int id;
     string nombre;
     string artista;
@@ -31,19 +30,12 @@ public:
     );
 
     int getId();
-
     string getNombre();
-
     string getArtista();
-
     string getAlbum();
-
     int getAnio();
-
     int getDuracion();
-
     string getRuta();
-
     void mostrar();
 };
 

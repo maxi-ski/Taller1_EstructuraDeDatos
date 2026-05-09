@@ -1,8 +1,24 @@
-//
-// Created by nacho on 5/8/2026.
-//
+#ifndef LISTACANCIONES_H
+#define LISTACANCIONES_H
 
-#ifndef TALLER1_ESTRUCTURADEDATOS_LISTACANCIONES_H
-#define TALLER1_ESTRUCTURADEDATOS_LISTACANCIONES_H
+#include "Nodo.h"
 
-#endif //TALLER1_ESTRUCTURADEDATOS_LISTACANCIONES_H
+class ListaCanciones{
+private:
+    Nodo* primero;
+    Nodo* ultimo;
+    int largo;
+
+public:
+    ListaCanciones();
+    void agregar(Cancion* cancion);
+    void mostrar();
+    Nodo* getPrimero();
+    Nodo* getUltimo();
+    int getLargo();
+    Cancion* obtenerPorPos(int pos);
+    void eliminarPorPos(int pos);
+    void vaciar();
+};
+
+#endif

@@ -1,8 +1,21 @@
-//
-// Created by nacho on 5/8/2026.
-//
+#ifndef NODO_H
+#define NODO_H
 
-#ifndef TALLER1_ESTRUCTURADEDATOS_NODO_H
-#define TALLER1_ESTRUCTURADEDATOS_NODO_H
+#include "Cancion.h"
 
-#endif //TALLER1_ESTRUCTURADEDATOS_NODO_H
+class Nodo{
+public:
+
+    Cancion* cancion;
+    Nodo* siguiente;
+    Nodo* anterior;
+
+    Nodo(Cancion* cancion){
+
+        this->cancion = cancion;
+        siguiente = nullptr;
+        anterior = nullptr;
+    }
+};
+
+#endif
