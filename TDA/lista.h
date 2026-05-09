@@ -20,13 +20,11 @@ private:
 
 public:
     lista();
-
-
     void insertarFinal(cancion* c);
-    int lentejas();
+    int tamanoF();
 
-    Nodo* getPrimero();
-    Nodo* getUltimo();
+    Nodo* getFirst();
+    Nodo* getLast();
 
     cancion* get(int indice);
     ~lista();
