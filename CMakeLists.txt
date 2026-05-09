@@ -3,4 +3,8 @@ project(Taller1_EstructuraDeDatos)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Taller1_EstructuraDeDatos main.cpp)
+add_executable(Taller1_EstructuraDeDatos main.cpp
+        Cancion/Cancion.cpp
+        Cancion/Cancion.h
+        TDA/lista.cpp
+        TDA/lista.h)
