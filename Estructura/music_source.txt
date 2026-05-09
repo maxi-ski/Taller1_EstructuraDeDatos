@@ -1,0 +1,5 @@
+1,Fire Dance,Vivid BAD Squad,Fire Dance Single,2025,210,C:/music/fire.mp3
+2,Show,Ado,Show Album,2024,180,C:/music/show.mp3
+3,Titanium,David Guetta,Titanium Album,2012,240,C:/music/titanium.mp3
+4,Chandelier,Sia,1000 Forms of Fear,2014,220,C:/music/chandelier.mp3
+5,Radioactive,Imagine Dragons,Night Visions,2013,200,C:/music/radioactive.mp3

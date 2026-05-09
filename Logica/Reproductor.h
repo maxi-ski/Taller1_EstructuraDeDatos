@@ -1,11 +1,11 @@
-//
-// Created by nacho on 5/8/2026.
-//
+#ifndef TALLER1_ESTRUCTURADEDATOS_REPRODUCTOR_H
+#define TALLER1_ESTRUCTURADEDATOS_REPRODUCTOR_H
 
-#ifndef REPRODUCTOR_H
-#define REPRODUCTOR_H
-
+#include <iostream>
+#include <fstream>
 #include "../Clases/ListaCanciones.h"
+
+using namespace std;
 
 class Reproductor{
 private:
